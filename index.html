@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบนิเทศภายในโรงเรียนมัธยมสุไหงปาดี</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Login Page -->
+  <div id="loginPage" class="login-container">
+    <div class="login-box">
+      <div class="school-logo">
+        <i class="fas fa-school" style="font-size: 80px; color: #1e3a5f;"></i>
+      </div>
+      <h1>ระบบนิเทศภายใน</h1>
+      <h2>โรงเรียนมัธยมสุไหงปาดี</h2>
+      <form onsubmit="login(); return false;">
+        <div class="form-group">
+          <label>ชื่อผู้ใช้</label>
+          <input type="text" id="loginUsername" placeholder="กรอกชื่อผู้ใช้" required>
+        </div>
+        <div class="form-group">
+          <label>รหัสผ่าน</label>
+          <input type="password" id="loginPassword" placeholder="กรอกรหัสผ่าน" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">
+          <i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Application -->
+  <div id="appContainer" class="app-container" style="display: none;">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h3><i class="fas fa-school"></i> โรงเรียนมัธยมสุไหงปาดี</h3>
+        <p>ระบบบริหารจัดการนิเทศภายใน</p>
+      </div>
+      <ul class="sidebar-nav">
+        <li>
+          <a href="#" data-page="dashboard" class="active" onclick="navigateTo('dashboard')">
+            <i class="fas fa-tachometer-alt"></i> แดชบอร์ด
+          </a>
+        </li>
+        <li>
+          <a href="#" data-page="booking" onclick="navigateTo('booking')">
+            <i class="fas fa-calendar-check"></i> จองวันนิเทศ
+          </a>
+        </li>
+        <li>
+          <a href="#" data-page="files" onclick="navigateTo('files')">
+            <i class="fas fa-file-upload"></i> ส่งงาน/ไฟล์
+          </a>
+        </li>
+        <li>
+          <a href="#" data-page="evaluation" onclick="navigateTo('evaluation')">
+            <i class="fas fa-clipboard-check"></i> ประเมินผล
+          </a>
+        </li>
+        <li id="adminMenu">
+          <a href="#" data-page="admin" onclick="navigateTo('admin')">
+            <i class="fas fa-cog"></i> จัดการระบบ
+          </a>
+        </li>
+        <li>
+          <a href="#" data-page="reports" onclick="navigateTo('reports')">
+            <i class="fas fa-chart-bar"></i> รายงาน
+          </a>
+        </li>
+        <li>
+          <a href="#" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Loading Spinner -->
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>กำลังโหลดข้อมูล...</p>
+      </div>
+
+      <!-- Dashboard Page -->
+      <div id="dashboardPage" class="page active">
+        <div class="page-header">
+          <h1><i class="fas fa-tachometer-alt"></i> แดชบอร์ด</h1>
+          <p>ภาพรวมระบบบริหารจัดการนิเทศภายใน</p>
+          <p>ยินดีต้อนรับ: <strong id="userName"></strong> (<span id="userRole"></span>)</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card primary">
+            <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+            <div class="stat-value" id="totalBookings">0</div>
+            <div class="stat-label">การจองทั้งหมด</div>
+          </div>
+          <div class="stat-card success">
+            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-value" id="completedBookings">0</div>
+            <div class="stat-label">นิเทศแล้ว</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <div class="stat-value" id="pendingBookings">0</div>
+            <div class="stat-label">รอดำเนินการ</div>
+          </div>
+          <div class="stat-card info">
+            <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+            <div class="stat-value" id="totalFiles">0</div>
+            <div class="stat-label">ไฟล์งานทั้งหมด</div>
+          </div>
+          <div class="stat-card success">
+            <div class="stat-icon"><i class="fas fa-file-contract"></i></div>
+            <div class="stat-value" id="approvedFiles">0</div>
+            <div class="stat-label">ไฟล์ผ่านแล้ว</div>
+          </div>
+          <div class="stat-card primary">
+            <div class="stat-icon"><i class="fas fa-star"></i></div>
+            <div class="stat-value" id="totalEvaluations">0</div>
+            <div class="stat-label">ผลการประเมิน</div>
+          </div>
+        </div>
+
+        <!-- Calendar and Recent Bookings -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <!-- Calendar -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-calendar"></i> ปฏิทินการจอง</h3>
+              <div class="calendar-nav">
+                <button class="btn btn-sm" onclick="prevMonth()"><i class="fas fa-chevron-left"></i></button>
+                <span id="calendarMonth"></span>
+                <button class="btn btn-sm" onclick="nextMonth()"><i class="fas fa-chevron-right"></i></button>
+              </div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+          </div>
+
+          <!-- Recent Bookings -->
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-list"></i> การจองล่าสุด</h3>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>วันที่</th>
+                    <th>ครู</th>
+                    <th>กลุ่มสาระ</th>
+                    <th>เวลา</th>
+                    <th>สถานะ</th>
+                  </tr>
+                </thead>
+                <tbody id="recentBookingsTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Files -->
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-file"></i> สถานะส่งงานล่าสุด</h3>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>ครู</th>
+                  <th>ประเภทไฟล์</th>
+                  <th>สถานะ</th>
+                </tr>
+              </thead>
+              <tbody id="recentFilesTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Booking Page -->
+      <div id="bookingPage" class="page">
+        <div class="page-header">
+          <h1><i class="fas fa-calendar-check"></i> จองวันนิเทศ</h1>
+          <p>จัดการการจองวันและเวลานิเทศ</p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>รายการจองทั้งหมด</h3>
+            <button class="btn btn-primary" onclick="showBookingForm()">
+              <i class="fas fa-plus"></i> จองวันนิเทศใหม่
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>รหัส</th>
+                  <th>วันที่</th>
+                  <th>เวลา</th>
+                  <th>ครู</th>
+                  <th>กลุ่มสาระ</th>
+                  <th>คาบ</th>
+                  <th>วิชา</th>
+                  <th>ชั้น</th>
+                  <th>ห้อง</th>
+                  <th>สถานะ</th>
+                  <th>จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="bookingsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Files Page -->
+      <div id="filesPage" class="page">
+        <div class="page-header">
+          <h1><i class="fas fa-file-upload"></i> ส่งงาน/ไฟล์</h1>
+          <p>อัพโหลดและจัดการไฟล์งานนิเทศ</p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>ไฟล์งานทั้งหมด</h3>
+            <button class="btn btn-primary" onclick="showUploadForm()">
+              <i class="fas fa-upload"></i> อัพโหลดไฟล์ใหม่
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>รหัส</th>
+                  <th>วันที่ส่ง</th>
+                  <th>ครู</th>
+                  <th>ประเภทไฟล์</th>
+                  <th>ลิงก์</th>
+                  <th>สถานะ</th>
+                  <th>จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="filesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evaluation Page -->
+      <div id="evaluationPage" class="page">
+        <div class="page-header">
+          <h1><i class="fas fa-clipboard-check"></i> ประเมินผล</h1>
+          <p>บันทึกและดูผลการประเมินการนิเทศ</p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>ผลการประเมินทั้งหมด</h3>
+            <button class="btn btn-primary" onclick="showEvaluationForm()">
+              <i class="fas fa-plus"></i> บันทึกผลการประเมินใหม่
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>รหัส</th>
+                  <th>วันที่นิเทศ</th>
+                  <th>ครู</th>
+                  <th>จุดเด่น</th>
+                  <th>จุดพัฒนา</th>
+                  <th>ข้อเสนอแนะ</th>
+                  <th>ระดับคุณภาพ</th>
+                </tr>
+              </thead>
+              <tbody id="evaluationsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Page -->
+      <div id="adminPage" class="page">
+        <div class="page-header">
+          <h1><i class="fas fa-cog"></i> จัดการระบบ</h1>
+          <p>จัดการการจอง ตรวจสอบไฟล์ และพิมพ์รายงาน</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button class="tab-btn active" onclick="showTab('adminBookings')">จัดการการจอง</button>
+          <button class="tab-btn" onclick="showTab('adminFiles')">ตรวจผลงาน</button>
+          <button class="tab-btn" onclick="showTab('adminReports')">พิมพ์รายงาน</button>
+        </div>
+
+        <!-- Admin Bookings Tab -->
+        <div id="adminBookings" class="tab-content active">
+          <div class="card">
+            <div class="card-header">
+              <h3>รายการจองทั้งหมด</h3>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>รหัส</th>
+                    <th>วันที่</th>
+                    <th>เวลา</th>
+                    <th>ครู</th>
+                    <th>กลุ่มสาระ</th>
+                    <th>สถานะ</th>
+                    <th>จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody id="adminBookingsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin Files Tab -->
+        <div id="adminFiles" class="tab-content">
+          <div class="card">
+            <div class="card-header">
+              <h3>ไฟล์งานที่ต้องตรวจสอบ</h3>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>รหัส</th>
+                    <th>ครู</th>
+                    <th>ประเภทไฟล์</th>
+                    <th>สถานะ</th>
+                    <th>จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody id="adminFilesTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin Reports Tab -->
+        <div id="adminReports" class="tab-content">
+          <div class="card">
+            <div class="card-header">
+              <h3>รายงานกลุ่มสาระ</h3>
+              <button class="btn btn-info" onclick="printReport()">
+                <i class="fas fa-print"></i> พิมพ์รายงาน
+              </button>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>กลุ่มสาระ</th>
+                    <th>การจองทั้งหมด</th>
+                    <th>นิเทศแล้ว</th>
+                    <th>รอดำเนินการ</th>
+                    <th>จำนวนครู</th>
+                  </tr>
+                </thead>
+                <tbody id="departmentReportBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reports Page -->
+      <div id="reportsPage" class="page">
+        <div class="page-header">
+          <h1><i class="fas fa-chart-bar"></i> รายงาน</h1>
+          <p>ดูรายงานและสถิติการนิเทศ</p>
+        </div>
+
+        <!-- Individual Report -->
+        <div class="card">
+          <div class="card-header">
+            <h3>รายงานรายบุคคล</h3>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>เลือกครู</label>
+              <select id="reportTeacherSelect">
+                <option value="">เลือกครู</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>&nbsp;</label>
+              <button class="btn btn-primary" onclick="generateTeacherReport()">
+                <i class="fas fa-search"></i> แสดงรายงาน
+              </button>
+              <button class="btn btn-info" onclick="printReport()">
+                <i class="fas fa-print"></i> พิมพ์
+              </button>
+            </div>
+          </div>
+          <div id="teacherReportContent"></div>
+        </div>
+
+        <!-- Department Report -->
+        <div class="card">
+          <div class="card-header">
+            <h3>รายงานกลุ่มสาระการเรียนรู้</h3>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>กลุ่มสาระ</th>
+                  <th>การจองทั้งหมด</th>
+                  <th>นิเทศแล้ว</th>
+                  <th>รอดำเนินการ</th>
+                  <th>จำนวนครู</th>
+                </tr>
+              </thead>
+              <tbody id="reportsDepartmentBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div id="modalOverlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">Modal Title</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
