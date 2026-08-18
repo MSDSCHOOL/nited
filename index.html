@@ -17,16 +17,16 @@
       </div>
       <h1>ระบบนิเทศภายใน</h1>
       <h2>โรงเรียนมัธยมสุไหงปาดี</h2>
-      <form onsubmit="login(); return false;">
+      <form id="loginForm" onsubmit="event.preventDefault(); login(event);">
         <div class="form-group">
           <label>ชื่อผู้ใช้</label>
-          <input type="text" id="loginUsername" placeholder="กรอกชื่อผู้ใช้" required>
+          <input type="text" id="loginUsername" placeholder="กรอกชื่อผู้ใช้" required autocomplete="username">
         </div>
         <div class="form-group">
           <label>รหัสผ่าน</label>
-          <input type="password" id="loginPassword" placeholder="กรอกรหัสผ่าน" required>
+          <input type="password" id="loginPassword" placeholder="กรอกรหัสผ่าน" required autocomplete="current-password">
         </div>
-        <button type="submit" class="btn btn-primary btn-block">
+        <button type="submit" id="loginBtn" class="btn btn-primary btn-block">
           <i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ
         </button>
         <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 6px; font-size: 13px; color: #555; text-align: left;">
@@ -451,6 +451,6 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=2.0"></script>
+  <script src="js/app.js?v=2.1"></script>
 </body>
 </html>

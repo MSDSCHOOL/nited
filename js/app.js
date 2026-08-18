@@ -118,28 +118,49 @@ function getMockData(action, data) {
 }
 
 // ==================== AUTHENTICATION ====================
-async function login() {
-  const username = document.getElementById('loginUsername').value.trim();
-  const password = document.getElementById('loginPassword').value.trim();
+async function login(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  
+  const usernameInput = document.getElementById('loginUsername');
+  const passwordInput = document.getElementById('loginPassword');
+  
+  const username = usernameInput ? usernameInput.value.trim() : '';
+  const password = passwordInput ? passwordInput.value.trim() : '';
   
   if (!username || !password) {
-    showAlert('กรุณากรอกข้อมูลให้ครบถ้วน', 'danger');
+    showAlert('กรุณากรอกชื่อผู้ใช้และรหัสผ่านให้ครบถ้วน', 'danger');
     return;
   }
   
-  const result = await apiCall('login', { username, password });
+  const loginBtn = document.getElementById('loginBtn');
+  if (loginBtn) {
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังเข้าสู่ระบบ...';
+  }
   
-  if (result.success) {
-    state.currentUser = username;
-    state.currentRole = result.role;
+  try {
+    const result = await apiCall('login', { username, password });
     
-    localStorage.setItem('currentUser', username);
-    localStorage.setItem('currentRole', result.role);
-    
-    showApp();
-    loadDashboard();
-  } else {
-    showAlert(result.message, 'danger');
+    if (result && result.success) {
+      state.currentUser = username;
+      state.currentRole = result.role || 'teacher';
+      
+      localStorage.setItem('currentUser', username);
+      localStorage.setItem('currentRole', state.currentRole);
+      
+      showApp();
+      loadDashboard();
+    } else {
+      showAlert(result && result.message ? result.message : 'เข้าสู่ระบบไม่สำเร็จ กรุณาตรวจสอบชื่อผู้ใช้หรือรหัสผ่าน', 'danger');
+    }
+  } catch (err) {
+    console.error('Login error:', err);
+    showAlert('เกิดข้อผิดพลาดในการเข้าสู่ระบบ: ' + err.message, 'danger');
+  } finally {
+    if (loginBtn) {
+      loginBtn.disabled = false;
+      loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ';
+    }
   }
 }
 
