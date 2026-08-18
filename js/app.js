@@ -24,17 +24,41 @@ async function apiCall(action, data = {}) {
   try {
     showLoading();
     
-    // For GitHub Pages, we'll use a mock API or direct Google Sheets
-    // In production, replace with actual Apps Script web app URL
-    const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'text/plain;charset=utf-8',
-      },
-      body: JSON.stringify({ action, ...data })
-    });
+    let response;
+    let text;
     
-    const result = await response.json();
+    try {
+      response = await fetch(CONFIG.APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify({ action, ...data })
+      });
+      text = await response.text();
+    } catch (postErr) {
+      console.warn('POST failed, attempting GET request:', postErr);
+      const queryParams = new URLSearchParams({ action, data: JSON.stringify(data), ...data }).toString();
+      response = await fetch(`${CONFIG.APPS_SCRIPT_URL}?${queryParams}`);
+      text = await response.text();
+    }
+    
+    let result;
+    try {
+      if (text.includes('<!DOCTYPE html>') || text.includes('<html')) {
+        // If response is HTML, doGet was triggered instead of doPost. Try GET with parameters.
+        const queryParams = new URLSearchParams({ action, data: JSON.stringify(data), ...data }).toString();
+        const getResp = await fetch(`${CONFIG.APPS_SCRIPT_URL}?${queryParams}`);
+        const getTxt = await getResp.text();
+        result = JSON.parse(getTxt);
+      } else {
+        result = JSON.parse(text);
+      }
+    } catch (jsonErr) {
+      console.error('Failed to parse JSON from Apps Script:', text);
+      throw jsonErr;
+    }
+    
     hideLoading();
     return result;
   } catch (error) {

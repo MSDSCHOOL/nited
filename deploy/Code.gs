@@ -5,6 +5,16 @@ const SPREADSHEET_ID = '1HvvYyCkU2aPcdmo5zOAgUWzjBA0XXTISj64JmJramoc';
 const DRIVE_FOLDER_ID = '1tbGMKsyUFQ16YjGCzNQbGRI099lCEH6k';
 
 function doGet(e) {
+  if (e && e.parameter && e.parameter.action) {
+    let data = e.parameter;
+    if (data.data) {
+      try {
+        const parsed = JSON.parse(data.data);
+        data = { ...data, ...parsed };
+      } catch (err) {}
+    }
+    return handleApiRequest(data);
+  }
   return HtmlService.createHtmlOutputFromFile('index')
     .setTitle('ระบบนิเทศภายในโรงเรียนมัธยมสุไหงปาดี')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
@@ -13,47 +23,59 @@ function doGet(e) {
 
 function doPost(e) {
   try {
-    const data = JSON.parse(e.postData.contents);
-    const action = data.action;
-    
-    switch(action) {
-      case 'login':
-        return jsonResponse(login(data));
-      case 'getBookings':
-        return jsonResponse(getBookings(data));
-      case 'createBooking':
-        return jsonResponse(createBooking(data));
-      case 'updateBooking':
-        return jsonResponse(updateBooking(data));
-      case 'deleteBooking':
-        return jsonResponse(deleteBooking(data));
-      case 'uploadFile':
-        return jsonResponse(uploadFile(data));
-      case 'getFiles':
-        return jsonResponse(getFiles(data));
-      case 'updateFileStatus':
-        return jsonResponse(updateFileStatus(data));
-      case 'createEvaluation':
-        return jsonResponse(createEvaluation(data));
-      case 'getEvaluations':
-        return jsonResponse(getEvaluations(data));
-      case 'getDashboardStats':
-        return jsonResponse(getDashboardStats());
-      case 'getCalendarData':
-        return jsonResponse(getCalendarData(data));
-      case 'getTeacherReport':
-        return jsonResponse(getTeacherReport(data));
-      case 'getDepartmentReport':
-        return jsonResponse(getDepartmentReport(data));
-      case 'getAllTeachers':
-        return jsonResponse(getAllTeachers());
-      case 'getAllDepartments':
-        return jsonResponse(getAllDepartments());
-      default:
-        return jsonResponse({success: false, message: 'Unknown action'});
+    let data = {};
+    if (e && e.postData && e.postData.contents) {
+      try {
+        data = JSON.parse(e.postData.contents);
+      } catch (err) {
+        data = e.parameter || {};
+      }
+    } else if (e && e.parameter) {
+      data = e.parameter;
     }
+    return handleApiRequest(data);
   } catch (error) {
     return jsonResponse({success: false, message: error.toString()});
+  }
+}
+
+function handleApiRequest(data) {
+  const action = data ? data.action : null;
+  switch(action) {
+    case 'login':
+      return jsonResponse(login(data));
+    case 'getBookings':
+      return jsonResponse(getBookings(data));
+    case 'createBooking':
+      return jsonResponse(createBooking(data));
+    case 'updateBooking':
+      return jsonResponse(updateBooking(data));
+    case 'deleteBooking':
+      return jsonResponse(deleteBooking(data));
+    case 'uploadFile':
+      return jsonResponse(uploadFile(data));
+    case 'getFiles':
+      return jsonResponse(getFiles(data));
+    case 'updateFileStatus':
+      return jsonResponse(updateFileStatus(data));
+    case 'createEvaluation':
+      return jsonResponse(createEvaluation(data));
+    case 'getEvaluations':
+      return jsonResponse(getEvaluations(data));
+    case 'getDashboardStats':
+      return jsonResponse(getDashboardStats());
+    case 'getCalendarData':
+      return jsonResponse(getCalendarData(data));
+    case 'getTeacherReport':
+      return jsonResponse(getTeacherReport(data));
+    case 'getDepartmentReport':
+      return jsonResponse(getDepartmentReport(data));
+    case 'getAllTeachers':
+      return jsonResponse(getAllTeachers());
+    case 'getAllDepartments':
+      return jsonResponse(getAllDepartments());
+    default:
+      return jsonResponse({success: false, message: 'Unknown action: ' + action});
   }
 }
 
