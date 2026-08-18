@@ -2,7 +2,7 @@
 
 // Configuration
 const CONFIG = {
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbx.../exec', // Replace with actual URL
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzsjXNduH-R_GI0NKxceO4GaPwWAhRcObQKQQzyY-WCVZw8aDSDzgBl2krJEGet3MnEdQ/exec', // Replace with actual URL
   SPREADSHEET_ID: '1HvvYyCkU2aPcdmo5zOAgUWzjBA0XXTISj64JmJramoc',
   DRIVE_FOLDER_ID: '1tbGMKsyUFQ16YjGCzNQbGRI099lCEH6k'
 };
