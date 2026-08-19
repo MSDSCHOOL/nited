@@ -444,6 +444,10 @@ function renderBookingsTable(bookings) {
   });
   
   document.getElementById('bookingsTableBody').innerHTML = html;
+  const adminBookingsBody = document.getElementById('adminBookingsTableBody');
+  if (adminBookingsBody) {
+    adminBookingsBody.innerHTML = html;
+  }
 }
 
 function showBookingForm() {
@@ -644,6 +648,10 @@ function renderFilesTable(files) {
   });
   
   document.getElementById('filesTableBody').innerHTML = html;
+  const adminFilesBody = document.getElementById('adminFilesTableBody');
+  if (adminFilesBody) {
+    adminFilesBody.innerHTML = html;
+  }
 }
 
 function showUploadForm() {
@@ -912,6 +920,27 @@ async function loadAdminData() {
   }
   
   loadBookings();
+  loadFiles();
+  loadReports();
+}
+
+function showTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  const tabContent = document.getElementById(tabId);
+  if (tabContent) tabContent.classList.add('active');
+  
+  const activeBtn = event && event.target ? event.target : null;
+  if (activeBtn) activeBtn.classList.add('active');
+  
+  if (tabId === 'adminBookings') loadBookings();
+  if (tabId === 'adminFiles') loadFiles();
+  if (tabId === 'adminReports') loadReports();
 }
 
 // ==================== REPORTS ====================
@@ -921,6 +950,19 @@ async function loadReports() {
   
   if (deptResult.success) {
     renderDepartmentReport(deptResult.data);
+  }
+  
+  // Load teacher list for report selection
+  const teachersResult = await apiCall('getAllTeachers');
+  
+  if (teachersResult.success) {
+    const select = document.getElementById('reportTeacherSelect');
+    if (select) {
+      select.innerHTML = '<option value="">เลือกครู</option>';
+      teachersResult.data.forEach(teacher => {
+        select.innerHTML += `<option value="${teacher}">${teacher}</option>`;
+      });
+    }
   }
 }
 
@@ -940,6 +982,10 @@ function renderDepartmentReport(data) {
   }
   
   document.getElementById('departmentReportBody').innerHTML = html;
+  const reportsDepartmentBody = document.getElementById('reportsDepartmentBody');
+  if (reportsDepartmentBody) {
+    reportsDepartmentBody.innerHTML = html;
+  }
 }
 
 async function generateTeacherReport() {
